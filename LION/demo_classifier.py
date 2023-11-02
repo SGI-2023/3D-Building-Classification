@@ -14,16 +14,15 @@ import clip
 import torch
 from PIL import Image
 from default_config import cfg as config
-from models.lion import LION
+from models.lion_classifier import LION_Classifier
 from utils.vis_helper import plot_points
-from huggingface_hub import hf_hub_download
 import time
 
 model_path = './lion_ckpt/text2shape/chair/checkpoints/model.pt'
 model_config = './lion_ckpt/text2shape/chair/cfg.yml'
 
 config.merge_from_file(model_config)
-lion = LION(config)
+lion = LION_Classifier(config)
 lion.load_model(model_path)
 
 if config.clipforge.enable:
@@ -43,8 +42,8 @@ output = lion.sample(1 if clip_feat is None else clip_feat.shape[0], clip_feat=c
 t2 = time.time()
 print("Execution time: ", t2-t1, "seconds")
 
-pts = output['points']
-img_name = "./tmp.png"
-plot_points(pts, output_name=img_name)
+# pts = output['points']
+# img_name = "./tmp.png"
+# plot_points(pts, output_name=img_name)
 # img = Image.open(img_name)
 # img.show()
