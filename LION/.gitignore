@@ -8,7 +8,6 @@ __pycache__/
 *swo
 *__pycache__*
 models/pvcnn/functional/build/
-*.sh
 lion_ckpt
 data/
 datasets/test_data
