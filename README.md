@@ -2,6 +2,8 @@
 
 This repository contains the implementation of our approach that integrates the methodologies of the LION paper and the Diffusion Classifier for advanced 3D building classification. 
 
+![3D Building Classification](https://github.com/SGI-2023/3D-Building-Classification/blob/main/3D%20Buildings.png)
+
 # Table of Contents 📚
 
   * Introduction
@@ -20,6 +22,8 @@ This repository contains the implementation of our approach that integrates the 
 We've developed a methodology that intergrates a generative capabilities with classification strengths. At the core of our approach is a hierarchical latent space that captures features of 3D building structures. This representation is then subjected to a diffusion process ,which perturbs the data iteratively. Post-diffusion, a deep neural network is employed to denoise the data, extracting essential features that are crucial for classification.  
 
 Following the denoising, a classification model is introduced which predicts the building category based on the denoised latent representation. Our system is designed to handle multi-modal data, allowing it to process and integrate information from various data types, enhancing its classification accuracy. 
+
+# Features 
 
 
 # Approach 🔍
