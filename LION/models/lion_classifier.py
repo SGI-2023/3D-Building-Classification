@@ -36,17 +36,20 @@ class LION_Classifier(object):
 
     @torch.no_grad()
     def sample(self, num_samples=10, clip_feat=None, save_img=False):
+        breakpoint()
         self.scheduler.set_timesteps(1000, device='cuda')
         timesteps = self.scheduler.timesteps
         latent_shape = self.vae.latent_shape()
         global_prior, local_prior = self.priors[0], self.priors[1]
+        # PriorSEClip, PVCNN2Prior
         assert(not local_prior.mixed_prediction and not global_prior.mixed_prediction)
         sampled_list = []
         output_dict = {}
-
         # start sample global prior
-        x_T_shape = [num_samples] + latent_shape[0]
-        x_noisy = torch.randn(size=x_T_shape, device='cuda')
+        x_T_shape = [num_samples] + latent_shape[0] # [1(num_samples), 128, 1, 1]
+        # replace with a noised version of the input point cloud
+        # 
+        x_noisy = torch.randn(size=x_T_shape, device='cuda') # [1, 128, 1, 1]
         condition_input = None
         for i, t in enumerate(timesteps):
             t_tensor = torch.ones(num_samples, dtype=torch.int64, device='cuda') * (t+1)
@@ -58,7 +61,8 @@ class LION_Classifier(object):
 
         # condition_input = x_noisy
         # condition_input = self.vae.global2style(condition_input)
-
+            # method Model.global2style of Model(style_encoder): PointNetPlusEncoder
+            
         # start sample local prior
         # x_T_shape = [num_samples] + latent_shape[1]
         # x_noisy = torch.randn(size=x_T_shape, device='cuda')
