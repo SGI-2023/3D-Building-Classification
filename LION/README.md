@@ -1,4 +1,5 @@
 ## Summarizing understanding and approach to be followed
+```
 1. Dataloader
 2. convert points to latent space (only the global shape latent)
     train_vae.sh
@@ -26,7 +27,7 @@
             Now that should be what we need. 
 3. add noise to the latent for timestep t -> 
 4. predict noise added to it using our diffusion model unet
-
+```
 ## New installation instructions
 
 Previous environment file had a lot of specific builds which aren't available anymore and extra packages which arent needed. Updated instructions-
