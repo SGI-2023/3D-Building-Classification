@@ -8,7 +8,7 @@
 
 """ copied and modified from https://github.com/stevenygd/PointFlow/blob/master/datasets.py """
 import os
-import open3d as o3d
+# import open3d as o3d
 import time
 import torch
 import numpy as np
@@ -418,6 +418,7 @@ def get_datasets(cfg, args):
 def get_data_loaders(cfg, args):
     tr_dataset, te_dataset = get_datasets(cfg, args)
     kwargs = {}
+    breakpoint()
     if args.distributed:
         kwargs['sampler'] = data.distributed.DistributedSampler(
             tr_dataset, shuffle=True)

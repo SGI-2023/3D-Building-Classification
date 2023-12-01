@@ -1,3 +1,32 @@
+## Summarizing understanding and approach to be followed
+1. Dataloader
+2. convert points to latent space (only the global shape latent)
+    train_vae.sh
+    VAE training function: trainers.hvae_trainer
+    VAE Model: models/vae_adain.py --> get_loss() --> recont()
+        or use encode() function: returns `all_eps[0]` corresponds to z_global (style)
+        style_encoder: models.shapelatent_modules.PointNetPlusEncoder
+    Now, onto the global diffusion
+        train_prior.sh
+        trainers.train_2prior.py
+            check compute_loss_vae()
+            returns `eps`` (which is made from `make_4d(all_eps)`--simple reshaping )
+            decompose_eps --> [eps_style, eps_local]
+
+        Understanding DAE
+            build_prior() inside train2_prior.py __init__()
+            inherits from PVCNN2Unet
+            calling dae[0] # line 295 on train_2prior.py
+                dae = [ cfg.latent_pts.style_prior,
+                        cfg.sde.prior_model]
+                dae[0]--models.score_sde.resnet.PriorSEDrop
+                dae[1]--models.latent_points_ada_localprior.PVCNN2Prior
+
+            # line 312 - calculate loss between noise_estimate and noise added
+            Now that should be what we need. 
+3. add noise to the latent for timestep t -> 
+4. predict noise added to it using our diffusion model unet
+
 ## New installation instructions
 
 Previous environment file had a lot of specific builds which aren't available anymore and extra packages which arent needed. Updated instructions-

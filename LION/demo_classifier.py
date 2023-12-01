@@ -17,6 +17,7 @@ from default_config import cfg as config
 from models.lion_classifier import LION_Classifier
 from utils.vis_helper import plot_points
 import time
+import datasets.pointflow_datasets as pf
 
 model_path = './lion_ckpt/text2shape/chair/checkpoints/model.pt'
 model_config = './lion_ckpt/text2shape/chair/cfg.yml'
@@ -24,6 +25,12 @@ model_config = './lion_ckpt/text2shape/chair/cfg.yml'
 config.merge_from_file(model_config)
 lion = LION_Classifier(config)
 lion.load_model(model_path)
+
+def get_dataloader(cfg, ):
+    loaders = pf.get_data_loaders(cfg.data, args)
+    train_loader = loaders['train_loader']
+    test_loader = loaders['test_loader']
+    return train_loader, test_loader
 
 if config.clipforge.enable:
     input_t = ["a swivel chair, five wheels"] 

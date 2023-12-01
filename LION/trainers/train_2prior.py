@@ -282,15 +282,16 @@ class Trainer(PriorTrainer):
                 output['vis/eps'] = decomposed_eps[1].view(
                     -1, self.dae.num_points, self.dae.num_classes)[:, :, :3]
                 p_loss_list = []
+                # iterate over the stlye latent and global latent
                 for latent_id, eps in enumerate(decomposed_eps):
-
+                    # GOTCHA: sample noise 
                     noise_p = torch.randn(size=eps.size(), device=device)
                     eps_t_p = diffusion.sample_q(eps, noise_p, var_t_p, m_t_p)
                     # run the score model
                     eps_t_p.requires_grad_(True)
                     mixing_component = diffusion.mixing_component(
                         eps_t_p, var_t_p, t_p, enabled=args.mixed_prediction)
-                    if latent_id == 0:
+                    if latent_id == 0: # corresponding to style latent
                         pred_params_p = dae[latent_id](
                             eps_t_p, t_p, x0=eps, clip_feat=clip_feat, **dae_kwarg)
                     else:
