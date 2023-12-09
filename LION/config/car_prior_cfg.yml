@@ -17,7 +17,7 @@ data:
   dataset_scale: 1
   dataset_type: shapenet15k
   eval_test_split: 0
-  input_dim: -1
+  input_dim: 3
   is_encode_whole_dataset_trainer: 0
   nclass: 55
   noise_std: 0.1

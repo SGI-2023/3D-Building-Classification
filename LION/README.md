@@ -6,7 +6,7 @@
     VAE training function: trainers.hvae_trainer
     VAE Model: models/vae_adain.py --> get_loss() --> recont()
         or use encode() function: returns `all_eps[0]` corresponds to z_global (style)
-        style_encoder: models.shapelatent_modules.PointNetPlusEncoder
+            style_encoder: models.shapelatent_modules.PointNetPlusEncoder
     Now, onto the global diffusion
         train_prior.sh
         trainers.train_2prior.py

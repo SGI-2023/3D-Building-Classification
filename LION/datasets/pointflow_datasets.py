@@ -377,6 +377,7 @@ def get_datasets(cfg, args):
                 f' recenter_per_shape={cfg.recenter_per_shape}'
                 )
     kwargs = {}
+    breakpoint()
     tr_dataset = ShapeNet15kPointClouds(
         categories=cfg.cates,
         split='train',
@@ -418,7 +419,6 @@ def get_datasets(cfg, args):
 def get_data_loaders(cfg, args):
     tr_dataset, te_dataset = get_datasets(cfg, args)
     kwargs = {}
-    breakpoint()
     if args.distributed:
         kwargs['sampler'] = data.distributed.DistributedSampler(
             tr_dataset, shuffle=True)
