@@ -6,7 +6,7 @@ clipforge:
 cmt: l2e-4GlobalP2048D03
 comet_key: ''
 data:
-  batch_size: 20
+  batch_size: 1
   batch_size_test: 10
   cates: car
   clip_forge_enable: 0

@@ -377,7 +377,7 @@ def get_datasets(cfg, args):
                 f' recenter_per_shape={cfg.recenter_per_shape}'
                 )
     kwargs = {}
-    breakpoint()
+    # breakpoint()
     tr_dataset = ShapeNet15kPointClouds(
         categories=cfg.cates,
         split='train',

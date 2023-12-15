@@ -6,8 +6,9 @@ from models.lion_classifier import LION_Classifier
 import datasets.pointflow_datasets as pf
 import copy
 import clip
-
-
+from torch.nn import functional as F
+import numpy as np
+import time
 class FakeArgs:
     def __init__(self):
         self.distributed = False
@@ -31,8 +32,8 @@ def make_4d(x):
 
 if __name__=="__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model_path = './lion_ckpt/text2shape/chair/checkpoints/model.pt'
-    model_config = './lion_ckpt/text2shape/chair/cfg.yml'
+    model_path = './lion_ckpt/text2shape/car/checkpoints/model.pt'
+    model_config = './lion_ckpt/text2shape/car/cfg.yml'
 
     config.merge_from_file(model_config)
     lion = LION_Classifier(config)
@@ -42,25 +43,29 @@ if __name__=="__main__":
     data_config.merge_from_file("./config/car_prior_cfg.yml")
     train_loader, test_loader = dataloaders_from_config(data_config.data)
     
-    B = 20
+    B = 1
     diffusion_args = config.sde
     
     if config.clipforge.enable:
-        input_t = ["a swivel chair, five wheels"] 
+        input_t = ["car", "chair", "tree",  "airplane"] 
         device_str = 'cuda'
         clip_model, clip_preprocess = clip.load(
                             config.clipforge.clip_model, device=device_str)    
         text = clip.tokenize(input_t).to(device_str)
         clip_feat = []
         clip_feat.append(clip_model.encode_text(text).float())
-        clip_feat = torch.cat(clip_feat, dim=0)
-        print('clip_feat', clip_feat.shape)
+        clip_feats = torch.cat(clip_feat, dim=0)
+        # breakpoint()
+        print('clip_feat', clip_feats.shape)
+        # repeat the clip features for all the samples in the batch
+        # clip_feat = clip_feat.repeat(B, 1)
     else:
         clip_feat = None
     
     global_prior, local_prior = lion.priors[0], lion.priors[1]
     
     while next(iter(train_loader)) is not None:
+        t1 = time.time()
         batch = next(iter(train_loader))
         # get the input point cloud - shape: (B, Npoints, 3)
         # B = 20, number of points = 2048
@@ -74,25 +79,43 @@ if __name__=="__main__":
         # global style-->
         eps = decomposed_eps[0]
         # decomposed_eps[1] --> local style
-        # generate timestep encoding
 
-        t = 768 # change this to something random
-        t_tensor = torch.ones(B, dtype=torch.int64, device='cuda') * (t+1)
-        breakpoint()
-        t_p, var_t_p, m_t_p, _, _, _ = lion.diffusion.iw_quantities_t(B, t_tensor, \
-                                diffusion_args.time_eps, diffusion_args.iw_sample_p, diffusion_args.iw_subvp_like_vp_sde)
-        #error ^ with the timestep shape
-        # breakpoint() RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 20 but got size 1 for tensor number 1 in the list.
+        # change timesteps here
+        losses = []
+        for t in range(950, 50, -1):
+            # generate timestep encoding
+            t_tensor = torch.ones(B, dtype=torch.int64, device='cuda') * (t+1)
+            # breakpoint()
+            t_p, var_t_p, m_t_p, _, _, _ = lion.diffusion.iw_quantities_t(B, t_tensor, \
+                                    diffusion_args.time_eps, diffusion_args.iw_sample_p, diffusion_args.iw_subvp_like_vp_sde)
+            #error ^ with the timestep shape
+            # breakpoint() RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 20 but got size 1 for tensor number 1 in the list.
+            
+            # add noise to the encoded points
+            noise_p = torch.randn(size=eps.size(), device=device)
+            eps_t_p = lion.diffusion.sample_q(eps, noise_p, var_t_p, m_t_p)
+            # eps_t_p.shape torch.Size([20, 128, 1, 1]          
+            # run denoising for that timestep -> get the noise_pred
+
+            condition_input = None        
+            # PriorSEClip
+            loss = []
+            for i, clip_feat in enumerate(clip_feats):
+                noise_pred = global_prior(x=eps_t_p, t=t_tensor.float(), condition_input=condition_input, clip_feat=clip_feat.view(1, -1))
+                p_loss = F.mse_loss( noise_pred.contiguous().view(B, -1), noise_p.view(B, -1), reduction='mean')
+                loss.append(p_loss.detach().cpu())
+            losses.append(loss)
         
-        # add noise to the encoded points
-        noise_p = torch.randn(size=eps.size(), device=device)
-        eps_t_p = lion.diffusion.sample_q(eps, noise_p, var_t_p, m_t_p)
-        # eps_t_p.shape torch.Size([20, 128, 1, 1]          
-        # run denoising for that timestep -> get the noise_pred
-
-        condition_input = None        
-        # PriorSEClip
-        noise_pred = global_prior(x=eps_t_p, t=t_tensor.float(), condition_input=condition_input, clip_feat=clip_feat)
+        # breakpoint()
+        losses = np.array(losses)
+        mean_loss = np.mean(losses, axis=0)
+        t2 = time.time()
+        print("Execution time: ", t2-t1, "seconds")
+        # print(mean_loss.shape)
+        print(mean_loss)
+        print(input_t[np.argmin(mean_loss)])
+        print()
+        
         
         
         # compute some loss between noise_pred and noise_p
@@ -101,9 +124,7 @@ if __name__=="__main__":
         # for the same timestep t, add noise to each sample
         # run denoising for that timestep -> get the noise_pred
         # for the actual class the loss should be low
-
         # unconditional/ conditional model
-        
         # multi-class model
         # given one sample
         # add noise to it , sample some random noise, for some t
