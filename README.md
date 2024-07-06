@@ -1,5 +1,7 @@
 # Multi-Modal Diffusion Models For 3D Building Classification 🏢🌐
 
+Team: Biruk Abere, Berfin Inal, Gabriele Dominici, Meher Nigam, Alex Li,  Nursena Koprucu, Sharvaree Vadgama, Le Xue, Shicheng Xu, Alberto Tono 
+
 This repository contains the implementation of our approach that integrates the methodologies of the LION paper and the Diffusion Classifier for advanced 3D building classification. 
 
 ![3D Building Classification](https://github.com/SGI-2023/3D-Building-Classification/blob/main/3D%20Buildings.png)
