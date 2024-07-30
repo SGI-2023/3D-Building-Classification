@@ -81,7 +81,6 @@ dependencies:
       - cffi==1.16.0
       - charset-normalizer==3.3.0
       - click==8.1.7
-      - clip==1.0
       - comet-ml==3.31.21
       - comm==0.1.4
       - configobj==5.0.8
